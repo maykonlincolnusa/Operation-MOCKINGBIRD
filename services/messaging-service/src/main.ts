@@ -60,9 +60,12 @@ async function sendMessage(tenantId: string, input: z.infer<typeof sendSchema>):
 
 async function main(): Promise<void> {
   await pool.query(migrations.messages);
+  await pool.query(migrations.eventInbox);
   await eventBus.connect();
   await eventBus.subscribe("messaging-service.commands", ["SendMessageCommand"], async (event) => {
-    await sendMessage(event.tenantId, sendSchema.parse(event.payload as SendMessageCommandPayload));
+    const inbox = await pool.query("INSERT INTO processed_events (event_id) VALUES ($1) ON CONFLICT DO NOTHING", [event.id]);
+    if (!inbox.rowCount) return;
+    await sendMessage(event.tenantId, sendSchema.parse(event.payload as unknown as SendMessageCommandPayload));
   });
 
   const app = express();
@@ -96,4 +99,3 @@ main().catch((error) => {
   logger.error("messaging_service_boot_failed", { error: error.message });
   process.exit(1);
 });
-

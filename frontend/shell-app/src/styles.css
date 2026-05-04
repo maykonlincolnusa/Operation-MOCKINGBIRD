@@ -33,6 +33,41 @@ body {
   font-weight: 800;
 }
 
+.session,
+.login button {
+  background: #dbe9e4;
+  border: 0;
+  border-radius: 6px;
+  color: #0e252c;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 9px 12px;
+}
+
+.login {
+  background: #ffffff;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  margin: 48px auto;
+  max-width: 420px;
+  padding: 22px;
+}
+
+.login h1 {
+  font-size: 26px;
+  margin: 0;
+}
+
+.login input {
+  border: 1px solid #b8c7c2;
+  border-radius: 6px;
+  font: inherit;
+  padding: 11px;
+}
+
 .workspace {
   display: grid;
   gap: 16px;

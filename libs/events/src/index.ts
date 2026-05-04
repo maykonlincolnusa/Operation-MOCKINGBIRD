@@ -1,4 +1,4 @@
-import amqp, { Channel, Connection, ConsumeMessage } from "amqplib";
+import amqp, { Channel, ConsumeMessage } from "amqplib";
 import { randomUUID } from "crypto";
 import { z } from "zod";
 
@@ -95,14 +95,17 @@ export function createEnvelope<TPayload extends Record<string, unknown>>(
 }
 
 export class EventBus {
-  private connection?: Connection;
+  private connection?: {
+    createChannel: () => Promise<Channel>;
+    close: () => Promise<void>;
+  };
   private channel?: Channel;
 
   constructor(private readonly url: string) {}
 
   async connect(): Promise<void> {
-    this.connection = await amqp.connect(this.url);
-    this.channel = await this.connection.createChannel();
+    this.connection = await amqp.connect(this.url) as unknown as EventBus["connection"];
+    this.channel = await this.connection!.createChannel();
     await this.channel.assertExchange(DOMAIN_EXCHANGE, "topic", { durable: true });
     await this.channel.assertExchange(COMMAND_EXCHANGE, "topic", { durable: true });
   }
@@ -125,7 +128,15 @@ export class EventBus {
   ): Promise<void> {
     const channel = this.requireChannel();
     const exchanges = [DOMAIN_EXCHANGE, COMMAND_EXCHANGE];
-    await channel.assertQueue(queueName, { durable: true });
+    const deadLetterExchange = `${queueName}.dlx`;
+    await channel.assertExchange(deadLetterExchange, "fanout", { durable: true });
+    await channel.assertQueue(`${queueName}.dead`, { durable: true });
+    await channel.bindQueue(`${queueName}.dead`, deadLetterExchange, "");
+    await channel.assertQueue(queueName, {
+      durable: true,
+      deadLetterExchange
+    });
+    await channel.prefetch(Number(process.env.RABBITMQ_PREFETCH ?? 10));
     for (const exchange of exchanges) {
       for (const bindingKey of bindingKeys) {
         await channel.bindQueue(queueName, exchange, bindingKey);

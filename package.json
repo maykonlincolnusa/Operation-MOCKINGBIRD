@@ -9,12 +9,25 @@
     "frontend/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build:libs && npm run build:apps",
+    "build:libs": "npm run build --workspace @mockingbird/events && npm run build --workspace @mockingbird/database",
+    "build:apps": "npm run build --workspace @mockingbird/gateway && npm run build --workspace @mockingbird/auth-service && npm run build --workspace @mockingbird/user-service && npm run build --workspace @mockingbird/flow-service && npm run build --workspace @mockingbird/messaging-service && npm run build --workspace @mockingbird/campaign-service && npm run build --workspace @mockingbird/analytics-service && npm run build --workspace @mockingbird/shell-app && npm run build --workspace @mockingbird/flow-builder-mf && npm run build --workspace @mockingbird/campaign-manager-mf && npm run build --workspace @mockingbird/user-manager-mf && npm run build --workspace @mockingbird/analytics-dashboard-mf",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
   "devDependencies": {
-    "typescript": "^5.5.4"
+    "@babel/runtime": "^7.29.2",
+    "autoprefixer": "^10.5.0",
+    "clean-css": "^5.3.3",
+    "dom-helpers": "^6.0.1",
+    "lodash": "^4.18.1",
+    "postcss": "^8.5.13",
+    "postcss-loader": "^8.2.1",
+    "resolve": "^1.22.12",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.5.4",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.3"
   }
 }
-

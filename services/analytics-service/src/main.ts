@@ -2,7 +2,7 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@as-integrations/express5";
 import { createPostgresPool, migrations } from "@mockingbird/database";
 import { createEnvelope, EventBus } from "@mockingbird/events";
-import express from "express";
+import express, { Request } from "express";
 import winston from "winston";
 
 const logger = winston.createLogger({ format: winston.format.json(), transports: [new winston.transports.Console()] });
@@ -24,8 +24,11 @@ async function getFlowMetrics(tenantId: string, flowId: string) {
 
 async function main(): Promise<void> {
   await pool.query(migrations.analytics);
+  await pool.query(migrations.eventInbox);
   await eventBus.connect();
   await eventBus.subscribe("analytics-service.events", ["MessageSent", "MessageFailed", "FlowCompleted"], async (event) => {
+    const inbox = await pool.query("INSERT INTO processed_events (event_id) VALUES ($1) ON CONFLICT DO NOTHING", [event.id]);
+    if (!inbox.rowCount) return;
     const flowId = String(event.payload.flowId ?? "unknown");
     const campaignId = event.payload.campaignId ? String(event.payload.campaignId) : undefined;
     if (event.type === "MessageSent") {
@@ -81,7 +84,7 @@ async function main(): Promise<void> {
     resolvers: { Query: { flowMetrics: (_: unknown, args: { flowId: string }, ctx: { tenantId: string }) => getFlowMetrics(ctx.tenantId, args.flowId) } }
   });
   await gql.start();
-  app.use("/graphql", expressMiddleware(gql, { context: async ({ req }) => ({ tenantId: req.header("x-tenant-id") ?? "public" }) }));
+  app.use("/graphql", expressMiddleware(gql, { context: async ({ req }: { req: Request }) => ({ tenantId: req.header("x-tenant-id") ?? "public" }) }));
 
   app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     logger.error("analytics_service_error", { error: error.message });
@@ -95,4 +98,3 @@ main().catch((error) => {
   logger.error("analytics_service_boot_failed", { error: error.message });
   process.exit(1);
 });
-

@@ -35,6 +35,20 @@
   padding: 10px 14px;
 }
 
+.flow-list {
+  border-bottom: 1px solid #d7dfdc;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 12px;
+}
+
+.flow-list button {
+  background: #eef5f2;
+  color: #1b3035;
+  white-space: nowrap;
+}
+
 .canvas {
   height: 620px;
 }

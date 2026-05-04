@@ -56,6 +56,7 @@ async function proxyJson(req: AuthenticatedRequest, res: Response, targetBaseUrl
     method: req.method,
     headers: {
       "content-type": "application/json",
+      ...(req.header("authorization") ? { authorization: req.header("authorization") as string } : {}),
       "x-user-id": req.user?.sub ?? "anonymous",
       "x-tenant-id": req.user?.tenantId ?? "public",
       "x-roles": req.user?.roles?.join(",") ?? ""
@@ -80,8 +81,10 @@ async function main(): Promise<void> {
   app.post("/api/v1/auth/login", (req, res) => proxyJson(req, res, services.auth, "/login"));
 
   app.post("/api/v1/flows", (req, res) => proxyJson(req, res, services.flows, "/flows"));
+  app.get("/api/v1/flows", (req, res) => proxyJson(req, res, services.flows, "/flows"));
   app.get("/api/v1/flows/:id", (req, res) => proxyJson(req, res, services.flows, `/flows/${req.params.id}`));
   app.put("/api/v1/flows/:id", (req, res) => proxyJson(req, res, services.flows, `/flows/${req.params.id}`));
+  app.post("/api/v1/flows/:id/execute", (req, res) => proxyJson(req, res, services.flows, `/flows/${req.params.id}/execute`));
 
   app.get("/api/v1/analytics/:flowId", (req, res) => proxyJson(req, res, services.analytics, `/analytics/flows/${req.params.flowId}`));
   app.get("/api/web/dashboard/:flowId", async (req: AuthenticatedRequest, res) => {
@@ -103,7 +106,7 @@ async function main(): Promise<void> {
     `,
     resolvers: {
       Query: {
-        flowMetrics: async (_parent, args: { flowId: string }, context: { tenantId: string }) => {
+        flowMetrics: async (_parent: unknown, args: { flowId: string }, context: { tenantId: string }) => {
           const response = await fetch(`${services.analytics}/analytics/flows/${args.flowId}`, {
             headers: { "x-tenant-id": context.tenantId }
           });
@@ -114,7 +117,7 @@ async function main(): Promise<void> {
   });
   await gql.start();
   app.use("/graphql", expressMiddleware(gql, {
-    context: async ({ req }) => ({ tenantId: (req as AuthenticatedRequest).user?.tenantId ?? "public" })
+    context: async ({ req }: { req: Request }) => ({ tenantId: (req as AuthenticatedRequest).user?.tenantId ?? "public" })
   }));
 
   app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -130,4 +133,3 @@ main().catch((error) => {
   logger.error("gateway_boot_failed", { error: error.message });
   process.exit(1);
 });
-

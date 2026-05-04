@@ -64,6 +64,15 @@ async function main(): Promise<void> {
     }
   });
 
+  app.get("/campaigns", async (req, res, next) => {
+    try {
+      const result = await pool.query("SELECT * FROM campaigns WHERE tenant_id=$1 ORDER BY updated_at DESC LIMIT 100", [tenantId(req)]);
+      res.json(result.rows);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get("/campaigns/:id", async (req, res, next) => {
     try {
       const result = await pool.query("SELECT * FROM campaigns WHERE tenant_id=$1 AND id=$2", [tenantId(req), req.params.id]);
@@ -121,4 +130,3 @@ main().catch((error) => {
   logger.error("campaign_service_boot_failed", { error: error.message });
   process.exit(1);
 });
-

@@ -30,3 +30,18 @@
   padding: 10px 14px;
   width: fit-content;
 }
+
+.rows {
+  display: grid;
+  gap: 8px;
+}
+
+.rows article {
+  align-items: center;
+  border: 1px solid #d7dfdc;
+  border-radius: 6px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr auto auto;
+  padding: 10px;
+}

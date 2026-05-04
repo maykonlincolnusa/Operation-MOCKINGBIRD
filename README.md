@@ -12,6 +12,16 @@ Operation MOCKINGBIRD is a minimal microservices MVP for intelligent communicati
 
 ## Run Locally
 
+Install dependencies:
+
+```powershell
+npm install --ignore-scripts
+npm run build
+npm test
+```
+
+The `--ignore-scripts` flag avoids a local Windows/OneDrive issue observed with the `esbuild` postinstall binary validation. Docker builds run in Linux containers and are not expected to need this workaround.
+
 ```powershell
 docker compose up --build
 ```
@@ -67,5 +77,13 @@ Each service can scale independently behind Docker Compose, Kubernetes Deploymen
 - Gateway propagates `x-user-id`, `x-tenant-id`, and `x-roles` headers to downstream services.
 - Services expose `/healthz` and `/metrics`.
 - Logs are structured JSON via Winston.
+- RabbitMQ consumers use prefetch and dead-letter queues.
+- Messaging and Analytics consumers record processed event IDs for basic idempotency.
 - Secrets should move to a secret manager outside local development.
 
+## Validation Status
+
+- `npm run build`: passing for shared libs, gateway, all services, shell app, and all micro-frontends.
+- `npm test`: passing for the current events library tests.
+- `docker compose config --quiet`: passing. Docker may warn if the local user cannot read `~/.docker/config.json`.
+- `npm audit`: registry audit endpoint failed in the current environment; prior install output reported 10 moderate transitive advisories. Avoid `npm audit fix --force` until dependency upgrades are reviewed because it may introduce breaking changes.

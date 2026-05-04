@@ -94,6 +94,12 @@ export const migrations = {
       PRIMARY KEY (tenant_id, campaign_id)
     );
   `,
+  eventInbox: `
+    CREATE TABLE IF NOT EXISTS processed_events (
+      event_id TEXT PRIMARY KEY,
+      processed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+  `,
   auth: `
     CREATE TABLE IF NOT EXISTS accounts (
       id UUID PRIMARY KEY,
@@ -105,4 +111,3 @@ export const migrations = {
     );
   `
 };
-

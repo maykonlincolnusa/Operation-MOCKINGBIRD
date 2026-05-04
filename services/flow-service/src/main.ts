@@ -30,7 +30,7 @@ async function main(): Promise<void> {
 
   await eventBus.subscribe("flow-service.commands", ["StartFlowCommand", "MessageFailed"], async (event) => {
     if (event.type === "StartFlowCommand") {
-      const command = event.payload as StartFlowCommandPayload;
+      const command = event.payload as unknown as StartFlowCommandPayload;
       const flow = await flows.findOne({ tenantId: event.tenantId, id: command.flowId });
       if (!flow) return;
       const firstNode = Array.isArray(flow.nodes) ? flow.nodes[0] : undefined;
@@ -45,6 +45,15 @@ async function main(): Promise<void> {
       }, event.correlationId ?? event.id));
     }
     if (event.type === "MessageFailed") {
+      await executions.updateMany(
+        {
+          tenantId: event.tenantId,
+          "command.flowId": event.payload.flowId,
+          "command.userId": event.payload.userId,
+          status: "running"
+        },
+        { $set: { status: "compensating", failedMessage: event.payload, updatedAt: new Date() } }
+      );
       await eventBus.publish(createEnvelope("CompensateFlowCommand", event.tenantId, { failedMessage: event.payload }, event.correlationId ?? event.id));
     }
   });
@@ -67,6 +76,19 @@ async function main(): Promise<void> {
       await flows.insertOne(flow);
       await eventBus.publish(createEnvelope("FlowCreated", flow.tenantId, { flowId: flow.id, name: flow.name, version: flow.version }));
       res.status(201).json(flow);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/flows", async (req, res, next) => {
+    try {
+      const result = await flows
+        .find({ tenantId: tenantId(req) }, { projection: { _id: 0 } })
+        .sort({ updatedAt: -1 })
+        .limit(100)
+        .toArray();
+      res.json(result);
     } catch (error) {
       next(error);
     }
@@ -130,4 +152,3 @@ main().catch((error) => {
   logger.error("flow_service_boot_failed", { error: error.message });
   process.exit(1);
 });
-

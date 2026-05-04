@@ -5,7 +5,13 @@ import { createRoot, Root } from "react-dom/client";
 function CampaignManager({ apiBase }: { apiBase: string }) {
   const [form, setForm] = useState({ name: "May Reactivation", flowId: "", tag: "lead", schedule: "" });
   const [status, setStatus] = useState("draft");
+  const [campaigns, setCampaigns] = useState<Array<{ id: string; name: string; status: string; flow_id: string }>>([]);
   const token = localStorage.getItem("mockingbirdToken");
+
+  async function loadCampaigns() {
+    const response = await fetch(`${apiBase}/campaigns`, { headers: { authorization: token ? `Bearer ${token}` : "" } });
+    if (response.ok) setCampaigns(await response.json());
+  }
 
   async function createCampaign() {
     const response = await fetch(`${apiBase}/campaigns`, {
@@ -15,7 +21,17 @@ function CampaignManager({ apiBase }: { apiBase: string }) {
     });
     const campaign = await response.json();
     setStatus(campaign.status ?? "created");
+    await loadCampaigns();
     window.dispatchEvent(new CustomEvent("campaignCreated", { detail: campaign }));
+  }
+
+  async function activateCampaign(id: string) {
+    const response = await fetch(`${apiBase}/campaigns/${id}/activate`, {
+      method: "POST",
+      headers: { authorization: token ? `Bearer ${token}` : "" }
+    });
+    setStatus(response.ok ? "activated" : "activation failed");
+    await loadCampaigns();
   }
 
   return (
@@ -26,7 +42,17 @@ function CampaignManager({ apiBase }: { apiBase: string }) {
       <input value={form.tag} onChange={(event) => setForm({ ...form, tag: event.target.value })} placeholder="Segment tag" />
       <input value={form.schedule} onChange={(event) => setForm({ ...form, schedule: event.target.value })} placeholder="Cron or blank for immediate" />
       <button onClick={createCampaign}>Create</button>
+      <button onClick={loadCampaigns}>Refresh</button>
       <strong>{status}</strong>
+      <div className="rows">
+        {campaigns.map((campaign) => (
+          <article key={campaign.id}>
+            <span>{campaign.name}</span>
+            <small>{campaign.status}</small>
+            <button onClick={() => activateCampaign(campaign.id)}>Activate</button>
+          </article>
+        ))}
+      </div>
     </div>
   );
 }
