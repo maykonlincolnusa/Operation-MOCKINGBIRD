@@ -1,0 +1,19 @@
+{
+  "name": "@mockingbird/events",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.5",
+    "vitest": "^2.0.5"
+  }
+}

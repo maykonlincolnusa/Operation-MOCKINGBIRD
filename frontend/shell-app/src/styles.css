@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-family: "Aptos", "Segoe UI", sans-serif;
+  background: #eef2f0;
+}
+
+body {
+  margin: 0;
+}
+
+.shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(120deg, rgba(18, 77, 92, 0.12), transparent 45%),
+    linear-gradient(180deg, #f8faf9, #e9efec);
+}
+
+.topbar {
+  align-items: center;
+  background: #0e252c;
+  color: #f5fbfa;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 24px;
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.workspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 280px 1fr;
+  padding: 20px;
+}
+
+.nav {
+  background: #ffffff;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  height: fit-content;
+  padding: 12px;
+}
+
+.nav button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #1b3035;
+  cursor: pointer;
+  font: inherit;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.nav button.active {
+  background: #dbe9e4;
+  font-weight: 700;
+}
+
+.surface {
+  min-width: 0;
+}
+
+@media (max-width: 860px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

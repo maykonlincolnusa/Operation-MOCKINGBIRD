@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  padding: 18px;
+}
+.panel h2 {
+  margin: 0;
+}
+.panel input {
+  border: 1px solid #b8c7c2;
+  border-radius: 6px;
+  font: inherit;
+  padding: 10px;
+}
+.panel button {
+  background: #0e5a53;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 10px 14px;
+  width: fit-content;
+}

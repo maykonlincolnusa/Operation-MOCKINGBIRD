@@ -1,0 +1,20 @@
+{
+  "name": "operation-mockingbird",
+  "private": true,
+  "workspaces": [
+    "gateway",
+    "libs/events",
+    "libs/database",
+    "services/*",
+    "frontend/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
+

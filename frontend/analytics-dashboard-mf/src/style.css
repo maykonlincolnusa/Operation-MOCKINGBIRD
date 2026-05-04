@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.analytics-mf {
+  background: #ffffff;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  padding: 18px;
+}
+.analytics-mf header {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+.analytics-mf h2 {
+  margin: 0 0 16px;
+}
+.kpis {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.kpis article {
+  background: #eef5f2;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+}
+.kpis strong {
+  font-size: 28px;
+}
+.chart {
+  height: 360px;
+  margin-top: 18px;
+}
+@media (max-width: 680px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.mf {
+  background: #ffffff;
+  border: 1px solid #d7dfdc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mf header {
+  align-items: center;
+  border-bottom: 1px solid #d7dfdc;
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+}
+
+.mf input {
+  border: 1px solid #b8c7c2;
+  border-radius: 6px;
+  flex: 1;
+  font: inherit;
+  padding: 9px 10px;
+}
+
+.mf button {
+  background: #0e5a53;
+  border: 0;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 10px 14px;
+}
+
+.canvas {
+  height: 620px;
+}
